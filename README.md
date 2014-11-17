@@ -133,6 +133,105 @@ end
 
 ## Level 2 : Scopes and methods
 
+##### Extract Query
+
+
+```ruby
+class ItemsController < ApplicationController
+  def index
+    @items = Item.where('rating > ? AND published_on > ?', 5, 2.days.ago)
+  end
+end
+```
+
+We can extract the query into a model
+```ruby
+class Item < ActiveRecord::Base
+  
+  def self.featured
+    where('rating > ? AND published_on > ?', 5, 2.days.ago)
+  end
+end
+```
+
+##### Class methods vS Scopes
+
+Two class methods:
+```ruby
+class Item < ActiveRecord::Base
+  def self.by_name(name)
+    where(name: name) if name.present?
+  end
+
+  def self.recent
+    where('created_on > ?', 2.days.ago)
+  end
+end
+```
+
+```ruby
+class Item < ActiveRecord::Base
+  scope :by_name,->(name){where(name: name) if name.present?}
+  scope :recent, -> { where('created_on > ?', 2.days.ago)}
+end
+```
+
+
+##### Use Merge to combine conditions from different Models
+
+```ruby
+class Item < ActiveRecord::Base
+  has_many :reviews
+  
+  scope :recent, ->{
+    where('published_on > ?', 2.days.ago)
+    .joins(:reviews).merge(Review.approved)
+  }
+end
+```
+
+
+```ruby
+class Review < ActiveRecord::Base
+  belongs_to :item
+  scope :approved, -> { where(approved: true) }
+end
+```
+
+##### Merging scopes
+
+When upgradign to Rails 4, you run into this bug because Rails no longe automatically removes duplication from SQL conditions.
+
+Example:
+
+```ruby
+class User < ActiveRecord::Base
+	scope :active, -> {where(state:'active')}
+	scope :inactive, -> {where(state:'inactive')}
+end
+```
+
+RAILS 3:
+(query in the last scope overrides the first one)
+
+User.active.inactive
+
+RAILS 4:
+
+(appends conditions)
+
+User.active.inactive
+SELECT * from users where state = 'active' AND state='inactive'
+
+
+User.active.merge(User.inactive)
+SELECT * from users where state = 'inactive'
+
+
+## Level 3 : Concerns
+
+
+
 
 
 
