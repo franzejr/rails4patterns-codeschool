@@ -418,6 +418,29 @@ And we can use the decorator in our view
 
 ## Level 5: Activemodel: Serializers part one
 
+Serialization code should not be in controller.
+
+
+ActiveModelSerializers replace "hash-driven development" with object-oriented development.
+- Decouples serialization code from the model
+- Convention Over Configuration
+- Access to url helpers methods
+- Support for associations
+
+
+##### Active Model Serializers
+
+Gemfile
+
+```ruby
+gem 'active_model_serializers', github: 'rails-api/active_model_serializers'
+# gem 'jbuilder'
+```
+
+
+
+
+
 
 
 
