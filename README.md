@@ -320,18 +320,19 @@ end
 ```
 
 
-Example 
+Examples
+
+##### First Example
 
 ```html
-<h2><%= @item.title %></h2>
+<h2><%= @item_decorator.title %></h2>
 
-<% if @item.is_featured? %>
+<% if @item_decorator.is_featured? %>
   <h3><%= featured_image %></h3>
 <% end %>
 
-<p><%= @item.description %></p>
+<p><%= @item_decorator.description %></p>
 ```
-
 
 
 ```ruby
@@ -361,6 +362,55 @@ class ItemDecorator
     @item.respond_to?(method_name, include_private) || super
   end
 end
+```
+
+##### Second Example
+
+```ruby
+class ItemDecorator
+
+  def initialize(item)
+    @item = item
+  end
+
+  def status
+    if @item.sold?
+      "Sold on #{@item.sold_on.strftime('%A, %B %e')}"
+    else
+      "Available"
+    end
+  end
+
+  def method_missing(method_name, *args, &block)
+    @item.send(method_name, *args, &block)
+  end
+
+  def respond_to_missing?(method_name, include_private = false)
+    @item.respond_to?(method_name, include_private) || super
+  end
+end
+```
+
+```ruby
+class Item < ActiveRecord::Base
+  def sold?
+    sold_on.present?
+  end
+end
+```
+
+```ruby
+  class ItemsController < ApplicationController
+        def show
+          @item_decorator = ItemDecorator.new(Item.find(params[:id]))
+        end
+      end
+      ```
+And we can use the decorator in our view
+```ruby
+<li>
+  <%= @item_decorator.name %> <i><%= @item_decorator.status %></i>
+</li>
 ```
 
 
