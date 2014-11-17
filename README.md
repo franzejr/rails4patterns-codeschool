@@ -400,13 +400,15 @@ end
 ```
 
 ```ruby
-  class ItemsController < ApplicationController
-        def show
-          @item_decorator = ItemDecorator.new(Item.find(params[:id]))
-        end
-      end
-      ```
+class ItemsController < ApplicationController
+	def show
+  		@item_decorator = ItemDecorator.new(Item.find(params[:id]))
+	end
+end
+```
+
 And we can use the decorator in our view
+
 ```ruby
 <li>
   <%= @item_decorator.name %> <i><%= @item_decorator.status %></i>
