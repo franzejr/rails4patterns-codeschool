@@ -438,6 +438,24 @@ gem 'active_model_serializers', github: 'rails-api/active_model_serializers'
 ```
 
 
+## Level 6: ActiveModel Serializers part two
+
+##### Associations
+
+```ruby
+class ItemSerializer < ActiveModel::Serializer
+  attributes :id, :name, :url
+￼  has_many :comments
+  def url
+    item_url(object)
+end end
+```
+
+For associations like these, we can use embed in each association. Using that, we're gonna have "comments_ids" rather than the entire object for each comment. By using the embed class method, all existing associations will embed ids instead objects.
+
+
+
+
 
 
 
