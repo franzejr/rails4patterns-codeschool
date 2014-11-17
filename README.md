@@ -130,3 +130,9 @@ class UserRegistration
 end
 ```
 
+
+## Level 2 : Scopes and methods
+
+
+
+
