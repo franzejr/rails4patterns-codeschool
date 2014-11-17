@@ -230,8 +230,138 @@ SELECT * from users where state = 'inactive'
 
 ## Level 3 : Concerns
 
+##### Move shared model code into model concerns
 
 
+app/models/concerns/commentable.rb
+```ruby
+module Commentable 
+	extend ActiveSupport::Concern
+	
+	module ClassMethods
+		def upvote(comment)
+			...
+		end
+	end
+
+end
+```
+
+Methods declared inside of this inner module become class methods on target class
+
+Post.upvote(@comment)
+Image.upvote(@comment)
+
+
+
+ActiveSupport::Concern automatically includes methods from the ClassMethods module as class methods on the target class
+
+
+##### Controllers concerns
+
+```ruby
+class UsersController < ApplicationController
+  include ImageExportable
+  def file
+    user = User.find(params[:id])
+    send_image(user.image)
+  end
+end
+```
+
+
+```ruby
+module ImageExportable
+  def send_image(image_path)
+    send_file(image_path, :type => 'image/jpeg',  :disposition => 'inline')
+  end
+end
+```
+
+
+## Level 4 : Decorators
+
+Decorators attach presentation logic to an object dynamically
+- Transparent to clients
+- "Wrap" another object
+- Delegate most methods to the wrapped object
+- Provide one or two methods of their own
+
+##### Logic view doest not belong in model
+
+```ruby
+class Item < ActiveRecord::Base
+  def is_featured?
+    self.ratings > 5
+  end
+end
+```
+
+
+##### Refactoring to a decorator
+```ruby
+class ItemDecorator
+  def initialize(item)
+    @item = item
+  end
+  
+  def is_featured?
+    @item.ratings > 5
+  end
+  
+  def respond_to_missing?(method_name, include_private=false)
+    @item.respond_to?(method_name, include_private) || super
+  end
+  
+  def method_missing(method_name, *args, &block)
+    @item.send(method_name,*args,&block)
+  end
+end
+```
+
+
+Example 
+
+```html
+<h2><%= @item.title %></h2>
+
+<% if @item.is_featured? %>
+  <h3><%= featured_image %></h3>
+<% end %>
+
+<p><%= @item.description %></p>
+```
+
+
+
+```ruby
+class ItemController < ApplicationController
+  def show
+    item = Item.find(params[:id])
+    @item_decorator = ItemDecorator.new(item)
+  end
+end
+```
+
+```ruby
+class ItemDecorator
+  def initialize(item)
+    @item = item
+  end
+
+  def is_featured?
+    @item.ratings > 5
+  end
+
+  def method_missing(method_name, *args, &block)
+    @item.send(method_name, *args, &block)
+  end
+
+  def respond_to_missing?(method_name, include_private = false)
+    @item.respond_to?(method_name, include_private) || super
+  end
+end
+```
 
 
 
