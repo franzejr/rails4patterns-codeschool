@@ -454,6 +454,46 @@ end end
 For associations like these, we can use embed in each association. Using that, we're gonna have "comments_ids" rather than the entire object for each comment. By using the embed class method, all existing associations will embed ids instead objects.
 
 
+```ruby
+class ReviewSerializer < ActiveModel::Serializer
+  attributes :id, :description, :approve_url
+
+  has_many :comments, embed: :id
+
+  def approve_url
+    approve_review_url(object)
+  end
+end
+```
+
+
+The client-side JavaScript library we are using automatically connects side-loaded objects with their respective ids embeded in parent associations. On our ItemSerializer, let's add an option to the embed method to make sure our reviews are side-loaded.
+
+
+```ruby
+class ItemSerializer < ActiveModel::Serializer
+  attributes :id, :name
+  
+  has_many :reviews
+  embed :ids, include: true
+end
+```
+
+
+##### Override association methods to filter records
+
+```ruby
+class ItemSerializer < ActiveModel::Serializer
+  attributes :id, :name
+
+  has_many :reviews
+  embed :ids, include: true
+  
+  def reviews
+    object.reviews.approved
+  end
+end
+```
 
 
 
