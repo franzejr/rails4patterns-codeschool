@@ -495,8 +495,84 @@ class ItemSerializer < ActiveModel::Serializer
 end
 ```
 
+## Level 7: Fine tuning
+
+##### Pluck
+
+Rails 4 with multiple arguments
+
+```ruby
+class Item < ActiveRecord::Base
+
+  def self.recent
+    where('published_on > ?', 2.days.ago).pluck(:id,:name)
+  end
+end
+```
+
+##### Filter Sensitive Parameters
 
 
+For security purposes, our application asks a security question during sign up. Just like passwords, we can't let those answers be written to the log. Make sure we are filtering the value for security_answer.
+
+```ruby
+class Rails4Patterns::Application
+  # hiding other config for brevity...
+  config.filter_parameters += [:password,:security_answer]
+end
+```
+
+
+##### Replace webrick on production
+
+
+```ruby
+gem 'puma'
+```
+
+##### Specify ruby version
+
+In our GemFile it's a good practice to specify our ruby version
+
+##### Procfile
+
+
+```ruby
+gem 'foreman'
+```
+
+Example of a procfile:
+
+```shell
+web: bundle exec rails s -p $PORT
+```
+
+```ruby
+web: bundle exec rails s -p $PORT
+worker: bundle exec rake worker
+urgent_worker: bundle exec rake urgent_worker
+scheduler: bundle exec rake scheduler
+```
+
+lib/tasks/run_app
+```ruby
+desc 'Start worker'
+task worker: :environment do
+  # starts worker...
+end
+
+desc 'Start urgent worker'
+task urgent_worker: :environment do
+  # starts urgent worker...
+end
+
+desc 'Start scheduler'
+task scheduler: :environment do
+  # starts scheduler..
+end
+```
+
+Foreman is a command line tool for running Procfile-backend apps.
 
 
 
