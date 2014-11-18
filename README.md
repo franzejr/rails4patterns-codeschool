@@ -230,6 +230,8 @@ SELECT * from users where state = 'inactive'
 
 ## Level 3 : Concerns
 
+https://signalvnoise.com/posts/3372-put-chubby-models-on-a-diet-with-concerns
+
 ##### Move shared model code into model concerns
 
 
@@ -280,6 +282,9 @@ end
 
 
 ## Level 4 : Decorators
+
+http://robots.thoughtbot.com/tidy-views-and-beyond-with-decorators
+
 
 Decorators attach presentation logic to an object dynamically
 - Transparent to clients
@@ -573,8 +578,7 @@ end
 ```
 
 Foreman is a command line tool for running Procfile-backend apps.
-
-
+De
 
 
 
